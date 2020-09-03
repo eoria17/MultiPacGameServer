@@ -6,6 +6,7 @@ import java.net.Socket;
 
 import packets.RejectedPacket;
 
+//(Theo) This is the main server thread. It will be used to wait for a new incoming connection and create a connection socket and thread for the connected client.
 public class Server implements Runnable {
 
 	private int port;
@@ -48,6 +49,7 @@ public class Server implements Runnable {
 	private void initSocket(Socket socket) {
 		Connection connection = new Connection(socket, id);
 		
+		//(Theo) This will send a rejection to the newly connected client if the capacity is full
 		if(settings.playerLimit + 1 != ConnectionHandler.connections.size()) {
 			RejectedPacket rp = new RejectedPacket("Room is full, cannot join room.");
 			connection.sendObject(rp);
