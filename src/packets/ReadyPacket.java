@@ -1,7 +1,7 @@
 package packets;
 
 import java.io.Serializable;
-
+//lizheng for test github
 public class ReadyPacket implements Serializable{
 
 	private static final long serialVersionUID = 1L;
