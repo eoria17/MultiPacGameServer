@@ -1,6 +1,7 @@
 package server;
 
 import packets.AddConnectionPacket;
+import packets.ClientSettingPacket;
 import packets.RemoveConnectionPacket;
 import packets.SettingPacket;
 
@@ -12,9 +13,13 @@ public class EventListener {
 		if (p instanceof AddConnectionPacket) {
 			AddConnectionPacket packet = (AddConnectionPacket) p;
 			packet.id = connection.id;
+			ClientSettingPacket cPacket = new ClientSettingPacket(connection.id);
+			
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
-				if (c != connection) {
+				if (c == connection) {
+					c.sendObject(cPacket);
+				}else {
 					c.sendObject(packet);
 				}
 			}

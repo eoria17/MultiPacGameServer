@@ -48,15 +48,17 @@ public class Server implements Runnable {
 
 	private void initSocket(Socket socket) {
 		Connection connection = new Connection(socket, id);
+		ConnectionHandler.connections.put(id, connection);
 		
 		//(Theo) This will send a rejection to the newly connected client if the capacity is full
-		if(settings.playerLimit + 1 != ConnectionHandler.connections.size()) {
+		System.out.println("Size before:" + ConnectionHandler.connections.size());
+		if((settings.playerLimit + 1) == ConnectionHandler.connections.size()) {
 			RejectedPacket rp = new RejectedPacket("Room is full, cannot join room.");
 			connection.sendObject(rp);
 			return;
 		}
 		
-		ConnectionHandler.connections.put(id, connection);
+		
 		new Thread(connection).start();
 		id++;
 	}
