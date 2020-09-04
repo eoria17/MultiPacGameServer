@@ -34,6 +34,7 @@ public class EventListener {
 			System.out.println("Connection: " + packet.id + " has disconnected");
 			ConnectionHandler.connections.get(packet.id).close();
 			ConnectionHandler.connections.remove(packet.id);
+			connection.sendObject(packet);
 
 			// (Theo) This is used as a first person who connect and create a game room with
 			// settings. It is still need improvement
@@ -55,9 +56,7 @@ public class EventListener {
 			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.readyStatus);
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
-				if (c != connection) {
 					c.sendObject(upPacket);
-				}
 			}
 
 		}
