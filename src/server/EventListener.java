@@ -66,7 +66,9 @@ public class EventListener {
 				Connection c = ConnectionHandler.connections.get(i);
 				
 					if(c != connection) {
+						System.out.println("sending to player " + (c.id + 1));
 						c.sendObject(upPacket);	
+						System.out.println(upPacket.readyStatus);
 					}else {
 						c.sendObject(new EmptyPacket());
 					}
