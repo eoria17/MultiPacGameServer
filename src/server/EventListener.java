@@ -2,6 +2,7 @@ package server;
 
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
+import packets.EmptyPacket;
 import packets.PlayersUpdatePacket;
 import packets.ReadyPacket;
 import packets.RejectedPacket;
@@ -18,12 +19,16 @@ public class EventListener {
 		if (p instanceof AddConnectionPacket) {
 			AddConnectionPacket packet = (AddConnectionPacket) p;
 			packet.id = connection.id;
+			ConnectionHandler.ServersClientReadyStatus.put(packet.id, false);
 			ClientSettingPacket cPacket = new ClientSettingPacket(connection.id);
+			
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus);
 
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
 				if (c == connection) {
 					c.sendObject(cPacket);
+					c.sendObject(upPacket);
 				} else {
 					c.sendObject(packet);
 				}
@@ -51,12 +56,20 @@ public class EventListener {
 
 		} else if (p instanceof ReadyPacket) {
 			ReadyPacket packet = (ReadyPacket) p;
-			ConnectionHandler.readyStatus.put(packet.id, packet.ready);
+			ConnectionHandler.ServersClientReadyStatus.put(packet.id, packet.ready);
 			
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.readyStatus);
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus);
+			
+			System.out.println("Players packet to send: " + upPacket.readyStatus);
+			
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
-					c.sendObject(upPacket);
+				
+					if(c != connection) {
+						c.sendObject(upPacket);	
+					}else {
+						c.sendObject(new EmptyPacket());
+					}
 			}
 
 		}
