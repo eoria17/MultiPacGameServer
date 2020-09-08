@@ -1,5 +1,5 @@
 package server;
 
-public class settings {
+public class Settings {
 	public static int playerLimit = -1;
 }

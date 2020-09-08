@@ -1,5 +1,8 @@
 package server;
 
+import java.sql.ConnectionBuilder;
+import java.util.HashMap;
+
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
 import packets.EmptyPacket;
@@ -8,6 +11,8 @@ import packets.ReadyPacket;
 import packets.RejectedPacket;
 import packets.RemoveConnectionPacket;
 import packets.SettingPacket;
+import packets.StartGamePacket;
+import packets.StartingPositionPacket;
 
 public class EventListener {
 
@@ -21,8 +26,8 @@ public class EventListener {
 			packet.id = connection.id;
 			ConnectionHandler.ServersClientReadyStatus.put(packet.id, false);
 			ClientSettingPacket cPacket = new ClientSettingPacket(connection.id);
-			
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus);
+
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
 
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
@@ -45,10 +50,10 @@ public class EventListener {
 			// settings. It is still need improvement
 		} else if (p instanceof SettingPacket) {
 
-			if (settings.playerLimit == -1) {
+			if (Settings.playerLimit == -1) {
 				SettingPacket packet = (SettingPacket) p;
-				settings.playerLimit = packet.limit;
-				System.out.println("current player limit set to: " + settings.playerLimit);
+				Settings.playerLimit = packet.limit;
+				System.out.println("current player limit set to: " + Settings.playerLimit);
 			} else {
 				RejectedPacket rp = new RejectedPacket("Room is already created.");
 				connection.sendObject(rp);
@@ -57,23 +62,67 @@ public class EventListener {
 		} else if (p instanceof ReadyPacket) {
 			ReadyPacket packet = (ReadyPacket) p;
 			ConnectionHandler.ServersClientReadyStatus.put(packet.id, packet.ready);
-			
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus);
-			
+
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
+
 			System.out.println("Players packet to send: " + upPacket.readyStatus);
+
+			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+				Connection c = ConnectionHandler.connections.get(i);
+
+				if (c != connection) {
+					System.out.println("sending to player " + (c.id + 1));
+					c.sendObject(upPacket);
+					System.out.println(upPacket.readyStatus);
+				} else {
+					c.sendObject(new EmptyPacket());
+				}
+			}
+			
+			
+			//(Theo) Start game once all players are ready
+			if(Settings.playerLimit == ConnectionHandler.connections.size()) {
+				
+				boolean startGame = true;
+				
+				for(boolean b : ConnectionHandler.ServersClientReadyStatus.values()) {
+					if(!b) {
+						startGame = false;
+					}
+				}
+				
+				if(startGame) {
+					StartGamePacket startPacket = new StartGamePacket(ConnectionHandler.clientsStartingPositions);
+					
+					for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+						Connection c = ConnectionHandler.connections.get(i);
+						
+						c.sendObject(startPacket);
+					}
+				}
+				
+			}
+			
+			
+
+		} else if(p instanceof StartingPositionPacket) {
+			StartingPositionPacket packet = (StartingPositionPacket) p;
+			
+			ConnectionHandler.clientsStartingPositions.put(connection.id, packet.position);
+			
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
 			
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
-				
-					if(c != connection) {
-						System.out.println("sending to player " + (c.id + 1));
-						c.sendObject(upPacket);	
-						System.out.println(upPacket.readyStatus);
-					}else {
-						c.sendObject(new EmptyPacket());
-					}
-			}
 
+				if (c != connection) {
+					System.out.println("sending to player " + (c.id + 1));
+					c.sendObject(upPacket);
+					System.out.println(upPacket.readyStatus);
+				} else {
+					c.sendObject(new EmptyPacket());
+				}
+			}
 		}
 	}
 }
