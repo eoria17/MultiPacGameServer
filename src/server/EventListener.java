@@ -1,8 +1,5 @@
 package server;
 
-import java.sql.ConnectionBuilder;
-import java.util.HashMap;
-
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
 import packets.EmptyPacket;
