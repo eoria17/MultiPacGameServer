@@ -7,7 +7,7 @@ import org.junit.Test;
 import client.Client;
 import clientPackets.AddConnectionPacket;
 import server.PlayerLimitException;
-import server.Server;
+import server.GameServer;
 
 public class PlayerLimitTest {
 
@@ -16,11 +16,11 @@ public class PlayerLimitTest {
 	Client player3;
 	Client player4;
 	Client player5;
-	Server server;
+	GameServer server;
 	
 	@Before
 	public void setUp() throws Exception {
-		server = new Server(8080);
+		server = new GameServer(8080);
 		server.start();
 	}
 

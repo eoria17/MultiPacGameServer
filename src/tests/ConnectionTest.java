@@ -3,15 +3,15 @@ package tests;
 import java.io.IOException;
 
 import client.Client;
-import server.Server;
+import server.GameServer;
 
 public class ConnectionTest {
 	Client client;
-	Server server;
+	GameServer server;
 
 	@Before
 	public void setUp() throws Exception {
-		server = new Server(8080);
+		server = new GameServer(8080);
 		server.start();
 		
 	}

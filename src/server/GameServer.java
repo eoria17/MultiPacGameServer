@@ -7,14 +7,14 @@ import java.net.Socket;
 import packets.RejectedPacket;
 
 //(Theo) This is the main server thread. It will be used to wait for a new incoming connection and create a connection socket and thread for the connected client.
-public class Server implements Runnable {
+public class GameServer implements Runnable {
 
 	private int port;
 	private ServerSocket serverSocket;
 	private boolean running = false;
 	private int id = 0;
 
-	public Server(int port) {
+	public GameServer(int port) {
 		this.port = port;
 
 		try {
