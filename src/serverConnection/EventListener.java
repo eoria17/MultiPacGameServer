@@ -1,4 +1,4 @@
-package server;
+package serverConnection;
 
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;

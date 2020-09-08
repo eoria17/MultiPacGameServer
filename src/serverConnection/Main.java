@@ -1,4 +1,4 @@
-package server;
+package serverConnection;
 
 public class Main {
 

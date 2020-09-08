@@ -3,7 +3,7 @@ package tests;
 import java.io.IOException;
 
 import client.Client;
-import server.GameServer;
+import serverConnection.GameServer;
 
 public class ConnectionTest {
 	Client client;

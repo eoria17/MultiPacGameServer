@@ -6,8 +6,8 @@ import org.junit.Test;
 
 import client.Client;
 import clientPackets.AddConnectionPacket;
-import server.PlayerLimitException;
-import server.GameServer;
+import serverConnection.GameServer;
+import serverConnection.PlayerLimitException;
 
 public class PlayerLimitTest {
 
