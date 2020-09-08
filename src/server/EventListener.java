@@ -37,6 +37,7 @@ public class EventListener {
 					c.sendObject(upPacket);
 				} else {
 					c.sendObject(packet);
+					c.sendObject(upPacket);
 				}
 			}
 
@@ -116,13 +117,7 @@ public class EventListener {
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
 
-				if (c != connection) {
-					System.out.println("sending to player " + (c.id + 1));
-					c.sendObject(upPacket);
-					System.out.println(upPacket.readyStatus);
-				} else {
-					c.sendObject(new EmptyPacket());
-				}
+				c.sendObject(upPacket);
 			}
 		
 		}else if(p instanceof PlayerPositionPacket) {
@@ -135,13 +130,7 @@ public class EventListener {
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
 
-				if (c != connection) {
-					System.out.println("sending to player " + (c.id + 1));
-					c.sendObject(upPacket);
-					System.out.println(upPacket.readyStatus);
-				} else {
-					c.sendObject(new EmptyPacket());
-				}
+				c.sendObject(upPacket);
 			}
 		}
 	}
