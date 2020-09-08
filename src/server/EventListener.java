@@ -6,6 +6,7 @@ import java.util.HashMap;
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
 import packets.EmptyPacket;
+import packets.PlayerPositionPacket;
 import packets.PlayersUpdatePacket;
 import packets.ReadyPacket;
 import packets.RejectedPacket;
@@ -111,6 +112,25 @@ public class EventListener {
 			ConnectionHandler.clientsStartingPositions.put(connection.id, packet.position);
 			
 			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
+			
+			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+				Connection c = ConnectionHandler.connections.get(i);
+
+				if (c != connection) {
+					System.out.println("sending to player " + (c.id + 1));
+					c.sendObject(upPacket);
+					System.out.println(upPacket.readyStatus);
+				} else {
+					c.sendObject(new EmptyPacket());
+				}
+			}
+		
+		}else if(p instanceof PlayerPositionPacket) {
+			PlayerPositionPacket packet = (PlayerPositionPacket) p;
+			
+			ConnectionHandler.clientsPositions.put(packet.id, packet.position);
+			
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsPositions);
 			
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);

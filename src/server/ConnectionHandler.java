@@ -10,5 +10,6 @@ public class ConnectionHandler {
 	public static HashMap<Integer,Connection> connections = new HashMap<Integer,Connection>();
 	public static HashMap<Integer,Boolean> ServersClientReadyStatus = new HashMap<Integer, Boolean>();
 	public static HashMap<Integer, Position> clientsStartingPositions = new HashMap<Integer, Position>();
+	public static HashMap<Integer, Position> clientsPositions = new HashMap<Integer, Position>();
 	
 }
