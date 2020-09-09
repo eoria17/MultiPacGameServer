@@ -36,8 +36,10 @@ public class GameServer implements Runnable {
 
 		while (running) {
 			try {
-				Socket socket = serverSocket.accept();
-				initSocket(socket);
+
+					Socket socket = serverSocket.accept();
+					initSocket(socket);
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -55,6 +57,8 @@ public class GameServer implements Runnable {
 		if((Settings.playerLimit + 1) == ConnectionHandler.connections.size()) {
 			RejectedPacket rp = new RejectedPacket("Room is full, cannot join room.");
 			connection.sendObject(rp);
+			ConnectionHandler.connections.remove(id);
+			connection.close();
 			return;
 		}
 		

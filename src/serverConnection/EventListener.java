@@ -2,7 +2,6 @@ package serverConnection;
 
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
-import packets.EmptyPacket;
 import packets.PlayerPositionPacket;
 import packets.PlayersUpdatePacket;
 import packets.ReadyPacket;
@@ -41,9 +40,10 @@ public class EventListener {
 		} else if (p instanceof RemoveConnectionPacket) {
 			RemoveConnectionPacket packet = (RemoveConnectionPacket) p;
 			System.out.println("Connection: " + packet.id + " has disconnected");
+			connection.sendObject(packet);
 			ConnectionHandler.connections.get(packet.id).close();
 			ConnectionHandler.connections.remove(packet.id);
-			connection.sendObject(packet);
+			
 
 			// (Theo) This is used as a first person who connect and create a game room with
 			// settings. It is still need improvement
@@ -56,6 +56,8 @@ public class EventListener {
 			} else {
 				RejectedPacket rp = new RejectedPacket("Room is already created.");
 				connection.sendObject(rp);
+				ConnectionHandler.connections.remove(connection.id);
+				connection.close();
 			}
 
 		} else if (p instanceof ReadyPacket) {
