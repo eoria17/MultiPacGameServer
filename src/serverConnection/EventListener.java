@@ -14,7 +14,7 @@ import packets.StartingPositionPacket;
 
 public class EventListener {
 
-	public void received(Object p, Connection connection) {
+	public synchronized void received(Object p, Connection connection) {
 
 		// (Theo) If the object receive by the connection is AddConnectionPacket, it
 		// will assign and ID to the connection and send the connection ID to all
@@ -61,6 +61,7 @@ public class EventListener {
 		} else if (p instanceof ReadyPacket) {
 			ReadyPacket packet = (ReadyPacket) p;
 			ConnectionHandler.ServersClientReadyStatus.put(packet.id, packet.ready);
+			System.out.println(ConnectionHandler.ServersClientReadyStatus);
 
 			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
 
@@ -73,8 +74,6 @@ public class EventListener {
 					System.out.println("sending to player " + (c.id + 1));
 					c.sendObject(upPacket);
 					System.out.println(upPacket.readyStatus);
-				} else {
-					c.sendObject(new EmptyPacket());
 				}
 			}
 			
@@ -120,14 +119,16 @@ public class EventListener {
 		}else if(p instanceof PlayerPositionPacket) {
 			PlayerPositionPacket packet = (PlayerPositionPacket) p;
 			
+			System.out.println("Player " + connection.id + " position: " + packet.position.getRow() + " " + packet.position.getCol());
 			ConnectionHandler.clientsPositions.put(packet.id, packet.position);
 			
 			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsPositions);
 			
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
+					
+					c.sendObject(upPacket);
 
-				c.sendObject(upPacket);
 			}
 		}
 	}
