@@ -15,6 +15,7 @@ public abstract class Moveable implements Serializable{
 protected char currentDirection;  
    protected Position currentCell;
    protected Grid grid;
+   public Moveable(){}
    public Moveable(Grid g)
    {
 	   grid = g;

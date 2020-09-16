@@ -3,7 +3,9 @@ package serverConnection;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
+import game.Position;
 import packets.RejectedPacket;
 
 //(Theo) This is the main server thread. It will be used to wait for a new incoming connection and create a connection socket and thread for the connected client.
@@ -39,7 +41,7 @@ public class GameServer implements Runnable {
 
 					Socket socket = serverSocket.accept();
 					initSocket(socket);
-				
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -75,5 +77,23 @@ public class GameServer implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static Position[] generateGridObstacles() {
+		int row = 11;
+		int col = 11;
+
+		ArrayList<Position> positions = new ArrayList<>();
+
+		for (int i=0; i<row; i++)
+			for (int j=0; j<col; j++)
+				if (i % 5 != 0 && j % 5 != 0) {
+					positions.add(new Position(i,j));
+				}
+
+		Position results[] = new Position[positions.size()];
+		positions.toArray(results);
+
+		return results;
 	}
 }

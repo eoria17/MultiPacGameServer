@@ -1,5 +1,6 @@
 package serverConnection;
 
+import game.Position;
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
 import packets.PlayerPositionPacket;
@@ -92,8 +93,11 @@ public class EventListener {
 				}
 				
 				if(startGame) {
-					StartGamePacket startPacket = new StartGamePacket(ConnectionHandler.clientsStartingPositions);
-					
+					Position[] gridObstacles = GameServer.generateGridObstacles();
+					ConnectionHandler.gridObstacles = gridObstacles;
+					StartGamePacket startPacket = new StartGamePacket(ConnectionHandler.clientsStartingPositions,
+							gridObstacles);
+
 					for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 						Connection c = ConnectionHandler.connections.get(i);
 						
