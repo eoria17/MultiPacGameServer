@@ -26,6 +26,11 @@ public class Monster extends Moveable {
 
 		for (int i = 0;i < ConnectionHandler.clientsPositions.size();i ++) {
 			Position player = ConnectionHandler.clientsPositions.get(i);
+
+			if (player.col == currentCell.col && player.row == currentCell.row) {
+				continue;
+			}
+
 			ArrayList<Position> tmpPath = SearchPath.aStarSearch(currentCell, player);
 
 			if (bestPath == null || tmpPath.size() < bestPath.size()) {
@@ -33,7 +38,9 @@ public class Monster extends Moveable {
 			}
 		}
 
-		currentCell = bestPath.get(bestPath.size() - 2);
+		if (bestPath != null) {
+			currentCell = bestPath.get(bestPath.size() - 2);
+		}
 
         return currentCell;
 	}
