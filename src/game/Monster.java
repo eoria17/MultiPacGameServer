@@ -73,7 +73,7 @@ public class Monster extends Moveable {
 	}
 
 	public void syncPlayerDeathStatus (int clientId) {
-		PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsPositions);
+		PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsPositions, ConnectionHandler.foodPositions);
 		upPacket.deathStatus = ConnectionHandler.deadPlayers;
 
 		for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
