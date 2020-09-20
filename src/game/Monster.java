@@ -5,6 +5,8 @@ package game;
  * The canView attribute can be used to limit monster visibility
  */
 
+import packets.PlayersUpdatePacket;
+import serverConnection.Connection;
 import serverConnection.ConnectionHandler;
 import serverConnection.Settings;
 
@@ -27,14 +29,30 @@ public class Monster extends Moveable {
 		for (int i = 0;i < ConnectionHandler.clientsPositions.size();i ++) {
 			Position player = ConnectionHandler.clientsPositions.get(i);
 
+			if (ConnectionHandler.isPlayerDead(i)) {
+				continue;
+			}
+
 			if (player.col == currentCell.col && player.row == currentCell.row) {
+				ConnectionHandler.deadPlayers.put(i, true);
+				syncPlayerDeathStatus(i);
 				continue;
 			}
 
 			ArrayList<Position> tmpPath = SearchPath.aStarSearch(currentCell, player);
 
-			if (bestPath == null || tmpPath.size() < bestPath.size()) {
+			if (bestPath == null) {
 				bestPath = tmpPath;
+			} else if (tmpPath.size() < bestPath.size()) {
+				bestPath = tmpPath;
+			} else if (tmpPath.size() == bestPath.size()) {
+				double max = 10;
+				double min = 1;
+				double x = (int)(Math.random()*((max-min)+1))+min;
+
+				if (x % 2 == 1.0) {
+					bestPath = tmpPath;
+				}
 			}
 		}
 
@@ -47,5 +65,15 @@ public class Monster extends Moveable {
 	public boolean viewable()  // can be used for hiding
 	{
 		return canView;
+	}
+
+	public void syncPlayerDeathStatus (int clientId) {
+		PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsPositions);
+		upPacket.deathStatus = ConnectionHandler.deadPlayers;
+
+		for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+			Connection c = ConnectionHandler.connections.get(i);
+			c.sendObject(upPacket);
+		}
 	}
 }

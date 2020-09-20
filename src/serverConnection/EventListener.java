@@ -124,7 +124,12 @@ public class EventListener {
 		
 		}else if(p instanceof PlayerPositionPacket) {
 			PlayerPositionPacket packet = (PlayerPositionPacket) p;
-			
+
+			// the player who was eaten by the monster should not be updated
+			if (ConnectionHandler.isPlayerDead(connection.id)) {
+				return;
+			}
+
 			System.out.println("Player " + connection.id + " position: " + packet.position.getRow() + " " + packet.position.getCol());
 			ConnectionHandler.clientsPositions.put(packet.id, packet.position);
 			
