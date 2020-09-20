@@ -12,6 +12,7 @@ public class ConnectionHandler {
 	public static HashMap<Integer, Position> clientsStartingPositions = new HashMap<Integer, Position>();
 	public static HashMap<Integer, Position> clientsPositions = new HashMap<Integer, Position>();
 	public static HashMap<Integer, Boolean> deadPlayers = new HashMap<Integer, Boolean>();
+	public static HashMap<Integer, Position> foodPositions = new HashMap<Integer, Position>();
 	public static Position[] gridObstacles;
 
 	public static boolean isPlayerDead(int playerId) {

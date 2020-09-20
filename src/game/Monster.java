@@ -13,6 +13,11 @@ import serverConnection.Settings;
 import java.util.ArrayList;
 
 public class Monster extends Moveable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	private boolean canView = true;  // allows
 	public Monster(int row, int col)
 	{

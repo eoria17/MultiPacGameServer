@@ -1,8 +1,11 @@
 package serverConnection;
 
+import java.util.HashMap;
+
 import game.Position;
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
+import packets.FoodPositionPacket;
 import packets.PlayerPositionPacket;
 import packets.PlayersUpdatePacket;
 import packets.ReadyPacket;
@@ -25,7 +28,8 @@ public class EventListener {
 			ConnectionHandler.ServersClientReadyStatus.put(packet.id, false);
 			ClientSettingPacket cPacket = new ClientSettingPacket(connection.id);
 
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
+					ConnectionHandler.clientsStartingPositions, ConnectionHandler.foodPositions);
 
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
@@ -44,7 +48,6 @@ public class EventListener {
 			connection.sendObject(packet);
 			ConnectionHandler.connections.get(packet.id).close();
 			ConnectionHandler.connections.remove(packet.id);
-			
 
 			// (Theo) This is used as a first person who connect and create a game room with
 			// settings. It is still need improvement
@@ -66,7 +69,8 @@ public class EventListener {
 			ConnectionHandler.ServersClientReadyStatus.put(packet.id, packet.ready);
 			System.out.println(ConnectionHandler.ServersClientReadyStatus);
 
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
+					ConnectionHandler.clientsStartingPositions, ConnectionHandler.foodPositions);
 
 			System.out.println("Players packet to send: " + upPacket.readyStatus);
 
@@ -79,20 +83,19 @@ public class EventListener {
 					System.out.println(upPacket.readyStatus);
 				}
 			}
-			
-			
-			//(Theo) Start game once all players are ready
-			if(Settings.playerLimit == ConnectionHandler.connections.size()) {
-				
+
+			// (Theo) Start game once all players are ready
+			if (Settings.playerLimit == ConnectionHandler.connections.size()) {
+
 				boolean startGame = true;
-				
-				for(boolean b : ConnectionHandler.ServersClientReadyStatus.values()) {
-					if(!b) {
+
+				for (boolean b : ConnectionHandler.ServersClientReadyStatus.values()) {
+					if (!b) {
 						startGame = false;
 					}
 				}
-				
-				if(startGame) {
+
+				if (startGame) {
 					Position[] gridObstacles = GameServer.generateGridObstacles();
 					ConnectionHandler.gridObstacles = gridObstacles;
 					StartGamePacket startPacket = new StartGamePacket(ConnectionHandler.clientsStartingPositions,
@@ -100,29 +103,28 @@ public class EventListener {
 
 					for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 						Connection c = ConnectionHandler.connections.get(i);
-						
+
 						c.sendObject(startPacket);
 					}
 				}
-				
-			}
-			
-			
 
-		} else if(p instanceof StartingPositionPacket) {
+			}
+
+		} else if (p instanceof StartingPositionPacket) {
 			StartingPositionPacket packet = (StartingPositionPacket) p;
-			
+
 			ConnectionHandler.clientsStartingPositions.put(connection.id, packet.position);
-			
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsStartingPositions);
-			
+
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
+					ConnectionHandler.clientsStartingPositions, ConnectionHandler.foodPositions);
+
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
 
 				c.sendObject(upPacket);
 			}
-		
-		}else if(p instanceof PlayerPositionPacket) {
+
+		} else if (p instanceof PlayerPositionPacket) {
 			PlayerPositionPacket packet = (PlayerPositionPacket) p;
 
 			// the player who was eaten by the monster should not be updated
@@ -130,16 +132,30 @@ public class EventListener {
 				return;
 			}
 
-			System.out.println("Player " + connection.id + " position: " + packet.position.getRow() + " " + packet.position.getCol());
+			System.out.println("Player " + connection.id + " position: " + packet.position.getRow() + " "
+					+ packet.position.getCol());
+
 			ConnectionHandler.clientsPositions.put(packet.id, packet.position);
-			
-			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus, ConnectionHandler.clientsPositions);
-			
+
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
+					ConnectionHandler.clientsPositions, ConnectionHandler.foodPositions);
+
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
-					
-					c.sendObject(upPacket);
+				c.sendObject(upPacket);
+			}
 
+		} else if (p instanceof FoodPositionPacket) {
+			FoodPositionPacket packet = (FoodPositionPacket) p;
+
+			ConnectionHandler.foodPositions.put(packet.id, packet.foodPosition);
+
+			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
+					ConnectionHandler.clientsPositions, ConnectionHandler.foodPositions);
+
+			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+				Connection c = ConnectionHandler.connections.get(i);
+				c.sendObject(upPacket);
 			}
 		}
 	}
