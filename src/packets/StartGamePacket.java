@@ -13,9 +13,11 @@ public class StartGamePacket implements Serializable{
 	
 
 	public HashMap<Integer,Position> clientsPosition;
+	public Position gridObstacles[];
 
-	public StartGamePacket(HashMap<Integer, Position> clientsPosition) {
+	public StartGamePacket(HashMap<Integer, Position> clientsPosition, Position gridObstacles[]) {
 		this.clientsPosition = clientsPosition;
+		this.gridObstacles = gridObstacles;
 	}
 	
 	

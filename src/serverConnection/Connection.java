@@ -1,5 +1,6 @@
 package serverConnection;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -33,7 +34,7 @@ public class Connection implements Runnable {
 	@Override
 	public synchronized void run() {
 		try {
-			while (socket.isConnected()) {
+			while (!socket.isClosed()) {
 				try {
 					// (Theo) The thread will not continue as in it will be blocked, waiting to
 					// receive data from the client.
@@ -44,6 +45,8 @@ public class Connection implements Runnable {
 					listener.received(data, this);
 				} catch (ClassNotFoundException e) {
 					e.printStackTrace();
+				} catch (EOFException e) {
+					close();
 				}
 			}
 		} catch (IOException e) {
@@ -53,9 +56,9 @@ public class Connection implements Runnable {
 
 	public void close() {
 		try {
+			socket.close();
 			in.close();
 			out.close();
-			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -63,12 +66,16 @@ public class Connection implements Runnable {
 
 	public void sendObject(Object packet) {
 		try {
-			out.writeObject(packet);
-			out.flush();
-			out.reset();
-
+			if (!socket.isClosed()) {
+				out.writeObject(packet);
+				out.flush();
+				out.reset();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			if (!socket.isClosed()) {
+				close();
+			}
 		}
 	}
 

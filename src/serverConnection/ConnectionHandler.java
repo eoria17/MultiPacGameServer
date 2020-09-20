@@ -11,5 +11,14 @@ public class ConnectionHandler {
 	public static HashMap<Integer,Boolean> ServersClientReadyStatus = new HashMap<Integer, Boolean>();
 	public static HashMap<Integer, Position> clientsStartingPositions = new HashMap<Integer, Position>();
 	public static HashMap<Integer, Position> clientsPositions = new HashMap<Integer, Position>();
-	
+	public static HashMap<Integer, Boolean> deadPlayers = new HashMap<Integer, Boolean>();
+	public static Position[] gridObstacles;
+
+	public static boolean isPlayerDead(int playerId) {
+		if (deadPlayers.get(playerId) != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
