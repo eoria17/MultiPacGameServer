@@ -2,6 +2,7 @@ package serverConnection;
 
 import java.util.HashMap;
 
+import game.Monster;
 import game.Position;
 import packets.AddConnectionPacket;
 import packets.ClientSettingPacket;
@@ -106,6 +107,10 @@ public class EventListener {
 
 						c.sendObject(startPacket);
 					}
+					
+					Monster monster = new Monster(5, 5);
+					MonsterThread monsterThread = new MonsterThread(monster);
+					new Thread(monsterThread).start();
 				}
 
 			}
@@ -132,9 +137,6 @@ public class EventListener {
 				return;
 			}
 
-			System.out.println("Player " + connection.id + " position: " + packet.position.getRow() + " "
-					+ packet.position.getCol());
-
 			ConnectionHandler.clientsPositions.put(packet.id, packet.position);
 
 			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
@@ -152,6 +154,7 @@ public class EventListener {
 
 			PlayersUpdatePacket upPacket = new PlayersUpdatePacket(ConnectionHandler.ServersClientReadyStatus,
 					ConnectionHandler.clientsPositions, ConnectionHandler.foodPositions);
+			
 
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
