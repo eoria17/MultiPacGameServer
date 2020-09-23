@@ -65,7 +65,11 @@ public class SearchPath {
         return path;
     }
 
-    public static ArrayList<Position> aStarSearch(Position src, Position dest) {
+    public static ArrayList<Position> aStarSearch(Position src, Position dest) throws Exception {
+        if (isDestination(src.row, src.col, dest)) {
+            throw new Exception("The source and destination point!");
+        }
+
         // Create a closed list and initialise it to false which means
         // that no cell has been included yet
         // This closed list is implemented as a boolean 2D array

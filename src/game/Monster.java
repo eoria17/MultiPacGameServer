@@ -44,7 +44,12 @@ public class Monster extends Moveable {
 				continue;
 			}
 
-			ArrayList<Position> tmpPath = SearchPath.aStarSearch(currentCell, player);
+			ArrayList<Position> tmpPath = null;
+			try {
+				tmpPath = SearchPath.aStarSearch(currentCell, player);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			if (bestPath == null) {
 				bestPath = tmpPath;

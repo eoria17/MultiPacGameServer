@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class SearchPathTest {
     @Test
-    public void aStarSearchTest() {
+    public void aStarSearchTest() throws Exception {
         ConnectionHandler.gridObstacles = new Position[] {new Position(0, 1)};
         ArrayList<Position> result = SearchPath.aStarSearch(new Position(0, 0), new Position(0, 2));
         Assert.assertEquals(5, result.size());
@@ -22,5 +22,11 @@ public class SearchPathTest {
         Assert.assertEquals(0, result.get(3).getCol());
         Assert.assertEquals(0, result.get(4).getRow());
         Assert.assertEquals(0, result.get(4).getCol());
+    }
+
+    @Test (expected=Exception.class)
+    public void aStarSearchTestNegative() throws Exception {
+        ConnectionHandler.gridObstacles = new Position[] {new Position(0, 1)};
+        ArrayList<Position> result = SearchPath.aStarSearch(new Position(0, 2), new Position(0, 2));
     }
 }
