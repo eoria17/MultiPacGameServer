@@ -1,3 +1,4 @@
+import game.OutofBoundaryException;
 import game.Position;
 import game.SamePositionException;
 import game.SearchPath;
@@ -26,8 +27,15 @@ public class SearchPathTest {
     }
 
     @Test (expected= SamePositionException.class)
-    public void aStarSearchTestNegative() throws Exception {
+    public void aStarSearchTestSamePosition() throws Exception {
         ConnectionHandler.gridObstacles = new Position[] {new Position(0, 1)};
-        ArrayList<Position> result = SearchPath.aStarSearch(new Position(0, 2), new Position(0, 2));
+        SearchPath.aStarSearch(new Position(0, 2), new Position(0, 2));
+    }
+
+    @Test (expected = OutofBoundaryException.class)
+    public void aStarSearchTestOutOfBoundary() throws Exception {
+        ConnectionHandler.gridObstacles = new Position[] {new Position(0, 1)};
+        SearchPath.aStarSearch(new Position(0, 1), new Position(0, 2));
+        SearchPath.aStarSearch(new Position(0, 0), new Position(0, 1));
     }
 }

@@ -65,7 +65,11 @@ public class SearchPath {
         return path;
     }
 
-    public static ArrayList<Position> aStarSearch(Position src, Position dest) throws SamePositionException {
+    public static ArrayList<Position> aStarSearch(Position src, Position dest) throws SamePositionException, OutofBoundaryException {
+        if (!isUnBlocked(src.row, src.col) || !isUnBlocked(dest.row, dest.col)) {
+            throw new OutofBoundaryException("The search position is out of boundary");
+        }
+
         if (isDestination(src.row, src.col, dest)) {
             throw new SamePositionException("The source and destination point!");
         }
