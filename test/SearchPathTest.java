@@ -1,4 +1,5 @@
 import game.Position;
+import game.SamePositionException;
 import game.SearchPath;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,7 +25,7 @@ public class SearchPathTest {
         Assert.assertEquals(0, result.get(4).getCol());
     }
 
-    @Test (expected=Exception.class)
+    @Test (expected= SamePositionException.class)
     public void aStarSearchTestNegative() throws Exception {
         ConnectionHandler.gridObstacles = new Position[] {new Position(0, 1)};
         ArrayList<Position> result = SearchPath.aStarSearch(new Position(0, 2), new Position(0, 2));

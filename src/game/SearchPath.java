@@ -65,9 +65,9 @@ public class SearchPath {
         return path;
     }
 
-    public static ArrayList<Position> aStarSearch(Position src, Position dest) throws Exception {
+    public static ArrayList<Position> aStarSearch(Position src, Position dest) throws SamePositionException {
         if (isDestination(src.row, src.col, dest)) {
-            throw new Exception("The source and destination point!");
+            throw new SamePositionException("The source and destination point!");
         }
 
         // Create a closed list and initialise it to false which means
