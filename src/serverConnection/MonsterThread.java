@@ -20,7 +20,9 @@ public class MonsterThread implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		boolean stopRunning = false;
+
+		while (!stopRunning) {
 
 			if (timeDelay == 0) {
 				monsterPosition = monster.move();
@@ -56,6 +58,8 @@ public class MonsterThread implements Runnable {
 				e.printStackTrace();
 			}
 
+			// if all players are eaten by the monster then stop send packages.
+			stopRunning = ConnectionHandler.deadPlayers.size() == Settings.playerLimit;
 		}
 	}
 }
