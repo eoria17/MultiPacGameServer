@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import game.Position;
 import packets.RejectedPacket;
@@ -84,16 +85,62 @@ public class GameServer implements Runnable {
 		int col = 11;
 
 		ArrayList<Position> positions = new ArrayList<>();
+		ArrayList<Position> tmpPositions = generatePath();
 
-		for (int i=0; i<row; i++)
-			for (int j=0; j<col; j++)
-				if (i % 5 != 0 && j % 5 != 0) {
-					positions.add(new Position(i,j));
-				}
+		for (Position tmpPosition : tmpPositions) {
+			int tmpRow = tmpPosition.getRow();
+			int tmpCol = tmpPosition.getCol();
+			positions.add(new Position(tmpCol + 1, tmpRow + 1));
+			positions.add(new Position(tmpCol + 1, 9 - tmpRow));
+		}
 
-		Position results[] = new Position[positions.size()];
+		tmpPositions = generatePath();
+		for (Position tmpPosition : tmpPositions) {
+			int tmpRow = tmpPosition.getRow();
+			int tmpCol = tmpPosition.getCol();
+			positions.add(new Position(tmpCol + 6, tmpRow + 1));
+			positions.add(new Position(tmpCol + 6, 9 - tmpRow));
+		}
+
+		Position[] results = new Position[positions.size()];
 		positions.toArray(results);
 
 		return results;
+	}
+
+	private static ArrayList<Position> generatePath() {
+		int row = 4;
+		int col = 4;
+		int upPass = randomChoice() ? 1 : 2;
+		int leftPass = randomChoice() ? 1 : 2;
+		int rightPass = randomChoice() ? 1 : 2;
+		int bottomPass = randomChoice() ? 1 : 2;
+
+		if (bottomPass == 1) {
+			rightPass = 1;
+		}
+
+		ArrayList<Position> positions = new ArrayList<>();
+
+		for (int i=0; i<col; i++) {
+			for (int j=0; j<row; j++) {
+				if (!((i == upPass && j <= leftPass) ||
+						(i <= upPass && j == leftPass) ||
+						(i == bottomPass && j >= rightPass) ||
+						(i >= bottomPass && j == rightPass))) {
+					positions.add(new Position(j,i));
+				}
+			}
+		}
+
+		return positions;
+	}
+
+	private static boolean randomChoice() {
+		double max = 10;
+		double min = 1;
+		double x = (int) (Math.random() * ((max - min) + 1)) + min;
+
+		return x % 2 == 1.0;
 	}
 }
