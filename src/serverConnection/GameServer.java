@@ -85,104 +85,55 @@ public class GameServer implements Runnable {
 		int col = 11;
 
 		ArrayList<Position> positions = new ArrayList<>();
-		HashMap<String, String> connectedCells = new HashMap<>();
+		ArrayList<Position> tmpPositions = generatePath();
 
-		connectedCells.put("5_5", "5_5");
-
-		for (int i=1; i<=row - 1; i+=2) {
-			for (int j=1; j<=col - 1; j+=2) {
-				connectCells(i, j, connectedCells, positions, i+"_"+j);
-			}
+		for (Position tmpPosition : tmpPositions) {
+			int tmpRow = tmpPosition.getRow();
+			int tmpCol = tmpPosition.getCol();
+			positions.add(new Position(tmpCol + 1, tmpRow + 1));
+			positions.add(new Position(tmpCol + 1, 9 - tmpRow));
 		}
 
+		tmpPositions = generatePath();
+		for (Position tmpPosition : tmpPositions) {
+			int tmpRow = tmpPosition.getRow();
+			int tmpCol = tmpPosition.getCol();
+			positions.add(new Position(tmpCol + 6, tmpRow + 1));
+			positions.add(new Position(tmpCol + 6, 9 - tmpRow));
+		}
 
-		Position results[] = new Position[positions.size()];
+		Position[] results = new Position[positions.size()];
 		positions.toArray(results);
 
 		return results;
 	}
 
-	private static void connectCells(int i, int j, HashMap<String, String> connectedCells,
-									 ArrayList<Position> positions,
-									 String group) {
-		boolean turn = false;
-		int nextI = i;
-		int nextJ = j;
-		int count = 5;
-		boolean stop = false;
+	private static ArrayList<Position> generatePath() {
+		int row = 4;
+		int col = 4;
+		int upPass = randomChoice() ? 1 : 2;
+		int leftPass = randomChoice() ? 1 : 2;
+		int rightPass = randomChoice() ? 1 : 2;
+		int bottomPass = randomChoice() ? 1 : 2;
 
-		while (!stop) {
-			if (isCellAvailable(nextI, nextJ, connectedCells, group)) {
-				connectedCells.put(nextI + "_" + nextJ, group);
-				positions.add(new Position(nextI, nextJ));
-			}
+		if (bottomPass == 1) {
+			rightPass = 1;
+		}
 
-			if (count < 4) {
-				if (count == 0) {
-					break;
-				} else {
-					stop = randomChoice();
+		ArrayList<Position> positions = new ArrayList<>();
+
+		for (int i=0; i<col; i++) {
+			for (int j=0; j<row; j++) {
+				if (!((i == upPass && j <= leftPass) ||
+						(i <= upPass && j == leftPass) ||
+						(i == bottomPass && j >= rightPass) ||
+						(i >= bottomPass && j == rightPass))) {
+					positions.add(new Position(j,i));
 				}
 			}
-
-			if (!turn) {
-				turn = randomChoice();
-			}
-
-			if (turn) {
-				nextI = nextI+1;
-			} else {
-				nextJ = nextJ+1;
-			}
-
-//			if (isCellAvailable(nextI, nextJ, connectedCells, group)) {
-//				connectedCells.put(nextI + "_" + nextJ, group);
-//				positions.add(new Position(nextI, nextJ));
-//			}
-
-			if (count == 5) {
-				turn = false;
-			}
-
-			count --;
 		}
-	}
 
-	private static boolean isCellAvailable(int i, int j, HashMap<String, String> connectedCells, String group) {
-		int row = 11 - 1;
-		int col = 11 - 1;
-
-		int nextI = i;
-		int nextJ = j;
-		String key = nextI + "_" + nextJ;
-		if ((nextI == 5 && nextJ == 5) || nextI > row || nextJ > col || connectedCells.containsKey(key)) {
-			return false;
-		}
-		nextI = i-1;
-		nextJ = j;
-		key = nextI + "_" + nextJ;
-		if (connectedCells.containsKey(key) && !connectedCells.get(key).equals(group)) {
-			return false;
-		}
-		nextI = i+1;
-		nextJ = j;
-		key = nextI + "_" + nextJ;
-		if (i == row || (connectedCells.containsKey(key) && !connectedCells.get(key).equals(group))) {
-			return false;
-		}
-		nextI = i;
-		nextJ = j-1;
-		key = nextI + "_" + nextJ;
-		if (connectedCells.containsKey(key) && !connectedCells.get(key).equals(group)) {
-			return false;
-		}
-		nextI = i;
-		nextJ = j+1;
-		key = nextI + "_" + nextJ;
-		if (j == col || (connectedCells.containsKey(key) && !connectedCells.get(key).equals(group))) {
-			return false;
-		}
-		return true;
+		return positions;
 	}
 
 	private static boolean randomChoice() {
@@ -190,10 +141,6 @@ public class GameServer implements Runnable {
 		double min = 1;
 		double x = (int) (Math.random() * ((max - min) + 1)) + min;
 
-		if (x % 2 == 1.0) {
-			return true;
-		} else {
-			return false;
-		}
+		return x % 2 == 1.0;
 	}
 }
