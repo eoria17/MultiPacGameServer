@@ -108,8 +108,8 @@ public class EventListener {
 						c.sendObject(startPacket);
 					}
 					
-					Monster monster = new Monster(5, 5);
-					MonsterThread monsterThread = new MonsterThread(monster);
+					Monster[] monsters = new Monster[]{new Monster(5, 5), new Monster(5, 5)};
+					MonsterThread monsterThread = new MonsterThread(monsters);
 					new Thread(monsterThread).start();
 				}
 
