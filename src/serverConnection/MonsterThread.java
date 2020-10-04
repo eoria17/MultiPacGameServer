@@ -39,19 +39,12 @@ public class MonsterThread implements Runnable {
 					continue;
 				}
 				SearchPath.otherMonsterPath = i == 0 ? null : monsters[i - 1].getPath();
-				Position prevPosition = monster.getCell();
 				Position monsterPosition = monster.move();
-				
+				monsterPositions.add(monsterPosition);
+
 				for (int p : ConnectionHandler.foodPositions.keySet()) {
 					if (monsterPosition.getRow() == ConnectionHandler.foodPositions.get(p).getRow() && monsterPosition.getCol() == ConnectionHandler.foodPositions.get(p).getCol()) {
 						monster.delay = 2;
-						
-						if(monster.delay != 0) {
-							monsterPosition = prevPosition;
-							monsterPositions.add(monsterPosition);
-						}else {
-							monsterPositions.add(monsterPosition);
-						}
 
 						FoodEatenPacket packet = new FoodEatenPacket(p);
 						for (int j = 0; j < ConnectionHandler.connections.size(); j++) {
@@ -64,12 +57,10 @@ public class MonsterThread implements Runnable {
 					}
 				}
 			}
-			
 
 			Position[] positions = new Position[monsterPositions.size()];
 			monsterPositions.toArray(positions);
 			MonsterPositionPacket positionPacket = new MonsterPositionPacket(positions);
-			
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
 				c.sendObject(positionPacket);
