@@ -4,17 +4,7 @@ import java.util.HashMap;
 
 import game.Monster;
 import game.Position;
-import packets.AddConnectionPacket;
-import packets.ClientSettingPacket;
-import packets.FoodPositionPacket;
-import packets.PlayerPositionPacket;
-import packets.PlayersUpdatePacket;
-import packets.ReadyPacket;
-import packets.RejectedPacket;
-import packets.RemoveConnectionPacket;
-import packets.SettingPacket;
-import packets.StartGamePacket;
-import packets.StartingPositionPacket;
+import packets.*;
 
 public class EventListener {
 
@@ -159,6 +149,41 @@ public class EventListener {
 			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
 				Connection c = ConnectionHandler.connections.get(i);
 				c.sendObject(upPacket);
+			}
+		} else if (p instanceof RematchPacket) {
+			RematchPacket packet = (RematchPacket) p;
+			ConnectionHandler.rematchPlayers.put(packet.id, true);
+
+			RematchPlayersPacket upPacket = new RematchPlayersPacket(ConnectionHandler.rematchPlayers);
+			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+				Connection c = ConnectionHandler.connections.get(i);
+				c.sendObject(upPacket);
+			}
+
+			// restart the game
+			if (ConnectionHandler.rematchPlayers.size() == Settings.playerLimit) {
+				//reinitialize
+				ConnectionHandler.deadPlayers = new HashMap<>();
+				ConnectionHandler.rematchPlayers = new HashMap<>();
+				Position[] gridObstacles = GameServer.generateGridObstacles();
+				ConnectionHandler.gridObstacles = gridObstacles;
+				StartGamePacket startPacket = new StartGamePacket(ConnectionHandler.clientsStartingPositions,
+						gridObstacles);
+
+				for (int i : ConnectionHandler.clientsStartingPositions.keySet()) {
+					ConnectionHandler.clientsPositions.put(i,
+							ConnectionHandler.clientsStartingPositions.get(i));
+				}
+
+				for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+					Connection c = ConnectionHandler.connections.get(i);
+
+					c.sendObject(startPacket);
+				}
+
+				Monster[] monsters = new Monster[]{new Monster(5, 5), new Monster(5, 5)};
+				MonsterThread monsterThread = new MonsterThread(monsters);
+				new Thread(monsterThread).start();
 			}
 		}
 	}

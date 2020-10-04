@@ -14,7 +14,10 @@ public class MonsterThread implements Runnable {
 	Monster[] monsters;
 	private ArrayList<Position> monsterPositions;
 
-	public int timeDelay = 0;
+	public int timePlay = 0;
+
+	// the time limit is the same as the client
+	private final int TIMEALLOWED = 100;
 
 	public MonsterThread(Monster[] monsters) {
 		this.monsters = monsters;
@@ -69,8 +72,18 @@ public class MonsterThread implements Runnable {
 				e.printStackTrace();
 			}
 
-			// if all players are eaten by the monster then stop send packages.
-			stopRunning = ConnectionHandler.deadPlayers.size() == Settings.playerLimit;
+			// if only one player is left
+			// or if the time is up
+			// then stop send packages.
+			if (timePlay >= TIMEALLOWED) {
+				stopRunning = true;
+			} else if (Settings.playerLimit > 1) {
+				stopRunning = ConnectionHandler.deadPlayers.size() == Settings.playerLimit - 1;
+			} else {
+				stopRunning = ConnectionHandler.deadPlayers.size() == Settings.playerLimit;
+			}
+
+			timePlay ++;
 		}
 	}
 }
