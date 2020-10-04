@@ -17,11 +17,14 @@ public class Monster extends Moveable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	private boolean canView = true;  // allows
+	public int delay;
+	private ArrayList<Position> path;
 	public Monster(int row, int col)
 	{
 	   setCell(new Position(row,col));
+	   this.delay = 0;
 	}
 	public Position move()
 	{
@@ -44,7 +47,12 @@ public class Monster extends Moveable {
 				continue;
 			}
 
-			ArrayList<Position> tmpPath = SearchPath.aStarSearch(currentCell, player);
+			ArrayList<Position> tmpPath = null;
+			try {
+				tmpPath = SearchPath.aStarSearch(currentCell, player);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
 			if (bestPath == null) {
 				bestPath = tmpPath;
@@ -63,6 +71,7 @@ public class Monster extends Moveable {
 
 		if (bestPath != null) {
 			currentCell = bestPath.get(bestPath.size() - 2);
+			path = bestPath;
 		}
 
         return currentCell;
@@ -70,6 +79,16 @@ public class Monster extends Moveable {
 	public boolean viewable()  // can be used for hiding
 	{
 		return canView;
+	}
+
+	public ArrayList<Position> getPath () {
+		return path;
+	}
+
+	public void setPathTocurrentPosition () {
+		ArrayList<Position> positions = new ArrayList<>();
+		positions.add(currentCell);
+		path = positions;
 	}
 
 	public void syncPlayerDeathStatus (int clientId) {

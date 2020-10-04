@@ -4,50 +4,66 @@ import static java.lang.Thread.sleep;
 
 import game.Monster;
 import game.Position;
+import game.SearchPath;
 import packets.FoodEatenPacket;
 import packets.MonsterPositionPacket;
 
+import java.util.ArrayList;
+
 public class MonsterThread implements Runnable {
-	Monster monster;
-	private Position monsterPosition;
+	Monster[] monsters;
+	private ArrayList<Position> monsterPositions;
 
-	public int timeDelay = 0;
+	public int timePlay = 0;
 
-	public MonsterThread(Monster monster) {
-		this.monster = monster;
-		monsterPosition = monster.getCell();
+	// the time limit is the same as the client
+	private final int TIMEALLOWED = 100;
+
+	public MonsterThread(Monster[] monsters) {
+		this.monsters = monsters;
 	}
 
 	@Override
 	public void run() {
-		while (true) {
+		boolean stopRunning = false;
 
-			if (timeDelay == 0) {
-				monsterPosition = monster.move();
+		while (!stopRunning) {
+			this.monsterPositions = new ArrayList<>();
 
-				MonsterPositionPacket positionPacket = new MonsterPositionPacket(monsterPosition);
-				for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
-					Connection c = ConnectionHandler.connections.get(i);
-					c.sendObject(positionPacket);
+			for (int i = 0; i < monsters.length; i++) {
+				Monster monster = monsters[i];
+				if (monster.delay != 0) {
+					monster.delay--;
+					monster.setPathTocurrentPosition();
+					monsterPositions.add(monster.getCell());
+					continue;
 				}
+				SearchPath.otherMonsterPath = i == 0 ? null : monsters[i - 1].getPath();
+				Position monsterPosition = monster.move();
+				monsterPositions.add(monsterPosition);
 
-			} else {
-				timeDelay--;
+				for (int p : ConnectionHandler.foodPositions.keySet()) {
+					if (monsterPosition.getRow() == ConnectionHandler.foodPositions.get(p).getRow() && monsterPosition.getCol() == ConnectionHandler.foodPositions.get(p).getCol()) {
+						monster.delay = 2;
+
+						FoodEatenPacket packet = new FoodEatenPacket(p);
+						for (int j = 0; j < ConnectionHandler.connections.size(); j++) {
+							Connection c = ConnectionHandler.connections.get(j);
+							c.sendObject(packet);
+						}
+
+						ConnectionHandler.foodPositions.remove(p);
+						break;
+					}
+				}
 			}
 
-			for (int p : ConnectionHandler.foodPositions.keySet()) {
-				if (monsterPosition.getRow() == ConnectionHandler.foodPositions.get(p).getRow() && monsterPosition.getCol() == ConnectionHandler.foodPositions.get(p).getCol()) {
-					timeDelay = 2;
-
-					FoodEatenPacket packet = new FoodEatenPacket(p);
-					for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
-						Connection c = ConnectionHandler.connections.get(i);
-						c.sendObject(packet);
-					}
-					
-					ConnectionHandler.foodPositions.remove(p);
-					break;
-				}
+			Position[] positions = new Position[monsterPositions.size()];
+			monsterPositions.toArray(positions);
+			MonsterPositionPacket positionPacket = new MonsterPositionPacket(positions);
+			for (int i = 0; i < ConnectionHandler.connections.size(); i++) {
+				Connection c = ConnectionHandler.connections.get(i);
+				c.sendObject(positionPacket);
 			}
 
 			try {
@@ -56,6 +72,18 @@ public class MonsterThread implements Runnable {
 				e.printStackTrace();
 			}
 
+			// if only one player is left
+			// or if the time is up
+			// then stop send packages.
+			if (timePlay >= TIMEALLOWED) {
+				stopRunning = true;
+			} else if (Settings.playerLimit > 1) {
+				stopRunning = ConnectionHandler.deadPlayers.size() == Settings.playerLimit - 1;
+			} else {
+				stopRunning = ConnectionHandler.deadPlayers.size() == Settings.playerLimit;
+			}
+
+			timePlay ++;
 		}
 	}
 }

@@ -13,6 +13,7 @@ public class SearchPath {
     public static HashMap<Double, Position> pPair;
     public static final int ROW = 11;
     public static final int COL = 11;
+    public static ArrayList<Position> otherMonsterPath;
 
     public static boolean isValid(int row, int col) {
         // Returns true if row number and column number
@@ -27,6 +28,15 @@ public class SearchPath {
         }
         for (int k = 0; k < ConnectionHandler.gridObstacles.length; k++) {
             Position pos = ConnectionHandler.gridObstacles[k];
+            if (row == pos.row && col == pos.col) {
+                return false;
+            }
+        }
+        if (otherMonsterPath == null) {
+            return true;
+        }
+        for (int i = 0; i < otherMonsterPath.size(); i++) {
+            Position pos = otherMonsterPath.get(i);
             if (row == pos.row && col == pos.col) {
                 return false;
             }
@@ -65,7 +75,15 @@ public class SearchPath {
         return path;
     }
 
-    public static ArrayList<Position> aStarSearch(Position src, Position dest) {
+    public static ArrayList<Position> aStarSearch(Position src, Position dest) throws SamePositionException, OutofBoundaryException {
+        if (!isValid(src.row, src.col) || !isValid(dest.row, dest.col)) {
+            throw new OutofBoundaryException("The search position is out of boundary");
+        }
+
+        if (isDestination(src.row, src.col, dest)) {
+            throw new SamePositionException("The source and destination point!");
+        }
+
         // Create a closed list and initialise it to false which means
         // that no cell has been included yet
         // This closed list is implemented as a boolean 2D array
