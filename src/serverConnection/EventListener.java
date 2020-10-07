@@ -165,6 +165,7 @@ public class EventListener {
 				//reinitialize
 				ConnectionHandler.deadPlayers = new HashMap<>();
 				ConnectionHandler.rematchPlayers = new HashMap<>();
+				ConnectionHandler.foodPositions = new HashMap<>();
 				Position[] gridObstacles = GameServer.generateGridObstacles();
 				ConnectionHandler.gridObstacles = gridObstacles;
 				StartGamePacket startPacket = new StartGamePacket(ConnectionHandler.clientsStartingPositions,
